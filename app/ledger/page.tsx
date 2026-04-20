@@ -142,7 +142,7 @@ export default function LedgerPage() {
               {/* Member code */}
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[14px] text-outline">
-                  badge
+                  person
                 </span>
                 <input
                   type="text"

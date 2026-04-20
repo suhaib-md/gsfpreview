@@ -80,7 +80,7 @@ export default function Sidebar() {
           className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-primary to-primary-container text-on-primary font-label font-semibold px-4 py-2.5 rounded-md hover:opacity-95 transition-opacity text-sm"
         >
           <span className="material-symbols-outlined text-[18px] leading-none">add</span>
-          Quick Action
+          Log Transaction
         </button>
 
         {/* Support + Sign Out */}

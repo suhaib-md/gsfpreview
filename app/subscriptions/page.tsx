@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PageHeader from '@/components/layout/PageHeader'
@@ -13,9 +13,11 @@ import type { Member, Subscription } from '@/types'
 const FY_OPTIONS = [
   { label: '2023–24', startYear: 2023 },
   { label: '2024–25', startYear: 2024 },
+  { label: '2025–26', startYear: 2025 },
 ]
 
 interface Prefill {
+  memberId: string
   memberName: string
   month: number
   year: number
@@ -40,11 +42,7 @@ export default function SubscriptionsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [prefill, setPrefill] = useState<Prefill | null>(null)
 
-  useEffect(() => {
-    fetchData()
-  }, [fyStartYear])
-
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     const years = [fyStartYear, fyStartYear + 1]
     const [membersRes, subsRes] = await Promise.all([
@@ -54,7 +52,11 @@ export default function SubscriptionsPage() {
     setMembers((membersRes.data ?? []) as Member[])
     setSubscriptions((subsRes.data ?? []) as Subscription[])
     setLoading(false)
-  }
+  }, [fyStartYear])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   // Lookup map: `${member_id}|${month}|${year}` → Subscription
   const subMap = new Map<string, Subscription>()
@@ -65,7 +67,7 @@ export default function SubscriptionsPage() {
   const currentYear = now.getFullYear()
 
   function handleCellClick(member: Member, month: number, year: number) {
-    setPrefill({ memberName: member.name, month, year })
+    setPrefill({ memberId: member.id, memberName: member.name, month, year })
     setModalOpen(true)
   }
 
@@ -139,7 +141,7 @@ export default function SubscriptionsPage() {
                     {FY_MONTH_LABELS.map((label, i) => (
                       <th
                         key={i}
-                        className="px-2 py-3 text-center text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide min-w-[52px] border-b border-outline-variant/15 last:rounded-tr-xl"
+                        className="px-2 py-3 text-center text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide min-w-13 border-b border-outline-variant/15 last:rounded-tr-xl"
                       >
                         {label}
                       </th>
@@ -259,6 +261,8 @@ export default function SubscriptionsPage() {
       <LogSubscriptionModal
         open={modalOpen}
         onClose={() => { setModalOpen(false); setPrefill(null) }}
+        onSaved={() => { setModalOpen(false); setPrefill(null); fetchData() }}
+        prefillMemberId={prefill?.memberId}
         prefillMemberName={prefill?.memberName}
         prefillMonth={prefill?.month}
         prefillYear={prefill?.year}

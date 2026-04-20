@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PageHeader from '@/components/layout/PageHeader'
 import KpiCard from '@/components/dashboard/KpiCard'
@@ -8,7 +8,7 @@ import DonationBreakdownChart from '@/components/dashboard/DonationBreakdownChar
 import ExpenseAllocationChart from '@/components/dashboard/ExpenseAllocationChart'
 import CollectionRateChart from '@/components/dashboard/CollectionRateChart'
 import RecentActivityTable from '@/components/dashboard/RecentActivityTable'
-import { useQuickAction } from '@/components/layout/QuickActionContext'
+import LogTransactionModal from '@/components/modals/LogTransactionModal'
 import { supabase } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
 import type { LedgerEntry } from '@/types'
@@ -37,49 +37,49 @@ function KpiSkeleton() {
 }
 
 export default function DashboardPage() {
-  const { openModal } = useQuickAction()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [txOpen, setTxOpen] = useState(false)
 
-  useEffect(() => {
-    async function fetchData() {
-      const [ledgerRes, recentRes, duesRes] = await Promise.all([
-        supabase.from('ledger_entries').select('account, amount'),
-        supabase
-          .from('ledger_entries')
-          .select('*')
-          .order('date', { ascending: false })
-          .limit(5),
-        supabase
-          .from('subscriptions')
-          .select('amount, member_id')
-          .eq('status', 'due'),
-      ])
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    const [ledgerRes, recentRes, duesRes] = await Promise.all([
+      supabase.from('ledger_entries').select('account, amount'),
+      supabase
+        .from('ledger_entries')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(5),
+      supabase
+        .from('subscriptions')
+        .select('amount, member_id')
+        .eq('status', 'due'),
+    ])
 
-      const entries = ledgerRes.data ?? []
-      const generalBalance = entries
-        .filter(e => e.account === 'general')
-        .reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
-      const zakatBalance = entries
-        .filter(e => e.account === 'zakat')
-        .reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+    const entries = ledgerRes.data ?? []
+    const generalBalance = entries
+      .filter(e => e.account === 'general')
+      .reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+    const zakatBalance = entries
+      .filter(e => e.account === 'zakat')
+      .reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
 
-      const dueEntries = duesRes.data ?? []
-      const totalDues = dueEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
-      const dueMemberCount = new Set(dueEntries.map((e: { member_id: string }) => e.member_id)).size
+    const dueEntries = duesRes.data ?? []
+    const totalDues = dueEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+    const dueMemberCount = new Set(dueEntries.map((e: { member_id: string }) => e.member_id)).size
 
-      setData({
-        generalBalance,
-        zakatBalance,
-        totalDues,
-        dueMemberCount,
-        recentEntries: (recentRes.data ?? []) as LedgerEntry[],
-      })
-      setLoading(false)
-    }
-
-    fetchData()
+    setData({
+      generalBalance,
+      zakatBalance,
+      totalDues,
+      dueMemberCount,
+      recentEntries: (recentRes.data ?? []) as LedgerEntry[],
+    })
+    setLoading(false)
   }, [])
+
+  useEffect(() => { fetchData() }, [fetchData])
+
 
   const totalFunds = (data?.generalBalance ?? 0) + (data?.zakatBalance ?? 0) + MEDICAL_FUND
 
@@ -91,28 +91,14 @@ export default function DashboardPage() {
       />
 
       <div className="px-8 py-6 space-y-6">
-        {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Quick Action */}
+        <div>
           <button
-            onClick={() => openModal('subscription')}
-            className="flex items-center justify-center gap-2 bg-linear-to-r from-primary to-primary-container text-on-primary font-label font-semibold px-4 py-2.5 rounded-md hover:opacity-95 transition-opacity text-sm"
+            onClick={() => setTxOpen(true)}
+            className="flex items-center gap-2 bg-linear-to-r from-primary to-primary-container text-on-primary font-label font-semibold px-5 py-2.5 rounded-md hover:opacity-95 transition-opacity text-sm"
           >
             <span className="material-symbols-outlined text-[18px] leading-none">add_circle</span>
-            Log Subscription
-          </button>
-          <button
-            onClick={() => openModal('donation')}
-            className="flex items-center justify-center gap-2 bg-surface-lowest border border-outline-variant text-on-surface font-label font-semibold px-4 py-2.5 rounded-md hover:bg-surface-container transition-colors text-sm"
-          >
-            <span className="material-symbols-outlined text-[18px] leading-none">volunteer_activism</span>
-            Log Donation
-          </button>
-          <button
-            onClick={() => openModal('expense')}
-            className="flex items-center justify-center gap-2 bg-surface-container text-on-surface-variant font-label font-semibold px-4 py-2.5 rounded-md hover:bg-surface-high transition-colors text-sm"
-          >
-            <span className="material-symbols-outlined text-[18px] leading-none">payments</span>
-            Log Expense
+            Log Transaction
           </button>
         </div>
 
@@ -207,6 +193,12 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      <LogTransactionModal
+        open={txOpen}
+        onClose={() => setTxOpen(false)}
+        onSaved={() => { setTxOpen(false); fetchData() }}
+      />
     </DashboardLayout>
   )
 }

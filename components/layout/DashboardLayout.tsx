@@ -1,14 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from './Sidebar'
+import { QuickActionProvider, useQuickAction } from './QuickActionContext'
+import LogSubscriptionModal from '@/components/modals/LogSubscriptionModal'
+import LogDonationModal from '@/components/modals/LogDonationModal'
+import LogExpenseModal from '@/components/modals/LogExpenseModal'
 
-interface DashboardLayoutProps {
-  children: React.ReactNode
+function LayoutContent({ children }: { children: ReactNode }) {
+  const { activeModal, closeModal } = useQuickAction()
+  return (
+    <div className="flex min-h-screen bg-surface">
+      <Sidebar />
+      <main className="ml-72 flex-1 overflow-y-auto min-h-screen">
+        {children}
+      </main>
+      <LogSubscriptionModal open={activeModal === 'subscription'} onClose={closeModal} />
+      <LogDonationModal    open={activeModal === 'donation'}     onClose={closeModal} />
+      <LogExpenseModal     open={activeModal === 'expense'}      onClose={closeModal} />
+    </div>
+  )
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const [authed, setAuthed] = useState(false)
 
@@ -29,11 +44,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen bg-surface">
-      <Sidebar />
-      <main className="ml-72 flex-1 overflow-y-auto min-h-screen">
-        {children}
-      </main>
-    </div>
+    <QuickActionProvider>
+      <LayoutContent>{children}</LayoutContent>
+    </QuickActionProvider>
   )
 }

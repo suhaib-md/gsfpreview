@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useQuickAction } from './QuickActionContext'
 
 const NAV_ITEMS = [
   { label: 'Dashboard',     icon: 'dashboard',       href: '/dashboard' },
@@ -11,13 +12,10 @@ const NAV_ITEMS = [
   { label: 'Ledger',        icon: 'receipt_long',     href: '/ledger' },
 ] as const
 
-interface SidebarProps {
-  onQuickAction?: (action: 'subscription' | 'donation' | 'expense') => void
-}
-
-export default function Sidebar({ onQuickAction }: SidebarProps) {
+export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { openModal } = useQuickAction()
 
   function handleSignOut() {
     localStorage.removeItem('gsf_demo_authed')
@@ -61,10 +59,7 @@ export default function Sidebar({ onQuickAction }: SidebarProps) {
               )}
             >
               <span
-                className={cn(
-                  'material-symbols-outlined text-[20px] leading-none shrink-0',
-                  isActive ? 'fill' : ''
-                )}
+                className="material-symbols-outlined text-[20px] leading-none shrink-0"
                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {item.icon}
@@ -81,7 +76,7 @@ export default function Sidebar({ onQuickAction }: SidebarProps) {
 
         {/* Quick Action */}
         <button
-          onClick={() => onQuickAction?.('subscription')}
+          onClick={() => openModal('subscription')}
           className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-primary to-primary-container text-on-primary font-label font-semibold px-4 py-2.5 rounded-md hover:opacity-95 transition-opacity text-sm"
         >
           <span className="material-symbols-outlined text-[18px] leading-none">add</span>

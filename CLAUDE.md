@@ -212,7 +212,7 @@ Sidebar background: `bg-[#f8f9fa]` with `shadow-[32px_0_64px_-20px_rgba(0,0,0,0.
 ```
 Logo area:
   - Circle avatar: w-10 h-10 bg-primary-container text-on-primary-container, initials "GS"
-  - Title: "GSF Stewardship" — font-headline font-extrabold text-[#004235]
+  - Title: "Project GSF" — font-headline font-extrabold text-[#004235]
   - Subtitle: "Financial Integrity" — text-xs text-on-surface-variant
 
 Nav items (in order):
@@ -916,7 +916,7 @@ Steps 8–12 (Supabase + GitHub + Vercel) require manual action — see manual s
 
 ---
 
-### Phase 1 — Layout Shell + Login (Est. 45 mins)
+### Phase 1 — Layout Shell + Login ✅ COMPLETE
 
 **Goal**: Login page works, sidebar renders on all authenticated pages.
 
@@ -1208,7 +1208,7 @@ Transaction categories to use in ledger:
 - Amanath / Saving Scheme
 
 Foundation name: **GSF** (Global Stewardship Foundation — or whatever the actual name is;
-use "GSF" in the app header and "GSF Stewardship" as the brand name in the sidebar)
+use "GSF" in the app header and "Project GSF" as the brand name in the sidebar)
 
 ---
 

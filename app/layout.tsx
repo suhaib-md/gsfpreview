@@ -4,7 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'GSF Accounts Management',
-  description: 'GSF Stewardship — Financial Integrity',
+  description: 'Project GSF — Financial Integrity',
 }
 
 export default function RootLayout({

@@ -965,7 +965,7 @@ Steps:
 
 ---
 
-### Phase 3 — Members Directory + Profile (Est. 1.5 hours)
+### Phase 3 — Members Directory + Profile ✅ COMPLETE
 
 **Goal**: Members list loads from Supabase, member profile page works.
 

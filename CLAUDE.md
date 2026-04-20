@@ -1011,7 +1011,7 @@ Steps:
 
 ---
 
-### Phase 5 — General Ledger (Est. 1 hour)
+### Phase 5 — General Ledger ✅ COMPLETE
 
 **Goal**: Ledger table loads, filters work.
 

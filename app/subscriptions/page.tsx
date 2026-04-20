@@ -38,7 +38,10 @@ export default function SubscriptionsPage() {
   const [members, setMembers] = useState<Member[]>([])
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
-  const [fyStartYear, setFyStartYear] = useState(2024)
+  const [fyStartYear, setFyStartYear] = useState(() => {
+    const now = new Date()
+    return now.getMonth() + 1 >= 6 ? now.getFullYear() : now.getFullYear() - 1
+  })
   const [modalOpen, setModalOpen] = useState(false)
   const [prefill, setPrefill] = useState<Prefill | null>(null)
 
@@ -79,7 +82,7 @@ export default function SubscriptionsPage() {
     <DashboardLayout>
       <PageHeader
         title="Subscription Tracker"
-        description="Monthly subscription status — FY 2024–25"
+        description={`Monthly subscription status — FY ${FY_OPTIONS.find(o => o.startYear === fyStartYear)?.label ?? ''}`}
         actions={
           <button
             onClick={() => toast.info('Feature coming in the full version')}

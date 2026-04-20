@@ -74,7 +74,7 @@ function SubmitRow({
 }
 
 const currentYear = new Date().getFullYear()
-const YEARS = [currentYear - 1, currentYear, currentYear + 1]
+const YEARS = Array.from({ length: currentYear - 2022 }, (_, i) => 2023 + i)
 
 // ── Subscription form ────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PageHeader from '@/components/layout/PageHeader'
 import MemberRow from '@/components/members/MemberRow'
@@ -41,16 +41,16 @@ export default function MembersPage() {
   const [page, setPage] = useState(0)
   const [showAddModal, setShowAddModal] = useState(false)
 
-  useEffect(() => {
-    fetchMembers()
-  }, [])
-
-  async function fetchMembers() {
+  const fetchMembers = useCallback(async () => {
     setLoading(true)
     const { data } = await supabase.from('members').select('*').order('code')
     setMembers((data ?? []) as Member[])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchMembers()
+  }, [fetchMembers])
 
   const filtered = members.filter(m => {
     const q = search.toLowerCase()

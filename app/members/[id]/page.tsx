@@ -79,6 +79,10 @@ export default function MemberProfilePage() {
     fetchData()
   }, [id])
 
+  // Current FY: Jun–May, so if month >= 6 we're in fyStartYear, else fyStartYear - 1
+  const nowDate = new Date()
+  const currentFyStartYear = nowDate.getMonth() + 1 >= 6 ? nowDate.getFullYear() : nowDate.getFullYear() - 1
+
   const totalContributed =
     data?.subscriptions
       .filter(s => s.status === 'paid')
@@ -230,12 +234,14 @@ export default function MemberProfilePage() {
                     <p className="font-label font-semibold text-on-surface text-sm">
                       Subscription History
                     </p>
-                    <p className="text-xs text-on-surface-variant mt-0.5">FY 2024–25 (Jun–May)</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5">
+                      FY {currentFyStartYear}–{String(currentFyStartYear + 1).slice(-2)} (Jun–May)
+                    </p>
                   </div>
                 </div>
                 <SubscriptionHistoryGrid
                   subscriptions={data.subscriptions}
-                  fyStartYear={2024}
+                  fyStartYear={currentFyStartYear}
                 />
               </div>
 

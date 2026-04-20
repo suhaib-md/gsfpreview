@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PageHeader from '@/components/layout/PageHeader'
@@ -33,12 +33,7 @@ export default function LedgerPage() {
   const [dateTo, setDateTo] = useState('')
   const [page, setPage] = useState(0)
 
-  useEffect(() => { fetchEntries() }, [])
-
-  // Reset to page 0 whenever a filter changes
-  useEffect(() => { setPage(0) }, [categoryFilter, memberCodeFilter, dateFrom, dateTo])
-
-  async function fetchEntries() {
+  const fetchEntries = useCallback(async () => {
     setLoading(true)
     const { data } = await supabase
       .from('ledger_entries')
@@ -47,7 +42,12 @@ export default function LedgerPage() {
       .order('created_at', { ascending: false })
     setEntries((data ?? []) as LedgerEntry[])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => { fetchEntries() }, [fetchEntries])
+
+  // Reset to page 0 whenever a filter changes
+  useEffect(() => { setPage(0) }, [categoryFilter, memberCodeFilter, dateFrom, dateTo])
 
   const filtered = entries.filter(e => {
     if (categoryFilter !== 'All' && e.category !== categoryFilter) return false

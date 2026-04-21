@@ -6,10 +6,12 @@ import { cn } from '@/lib/utils'
 import { useQuickAction } from './QuickActionContext'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',     icon: 'dashboard',       href: '/dashboard' },
-  { label: 'Members',       icon: 'group',            href: '/members' },
-  { label: 'Subscriptions', icon: 'calendar_month',   href: '/subscriptions' },
-  { label: 'Ledger',        icon: 'receipt_long',     href: '/ledger' },
+  { label: 'Dashboard',     icon: 'dashboard',          href: '/dashboard' },
+  { label: 'Members',       icon: 'group',               href: '/members' },
+  { label: 'Subscriptions', icon: 'calendar_month',      href: '/subscriptions' },
+  { label: 'Zakat (GFES)',  icon: 'account_balance',     href: '/zakat' },
+  { label: 'Donations',     icon: 'volunteer_activism',  href: '/donations' },
+  { label: 'Ledger',        icon: 'receipt_long',        href: '/ledger' },
 ] as const
 
 interface Props {

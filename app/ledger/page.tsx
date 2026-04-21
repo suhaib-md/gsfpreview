@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PageHeader from '@/components/layout/PageHeader'
+import TransactionDetailModal from '@/components/modals/TransactionDetailModal'
 import { supabase } from '@/lib/supabase'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import type { LedgerEntry } from '@/types'
@@ -33,6 +34,7 @@ export default function LedgerPage() {
   const [dateTo, setDateTo] = useState('')
   const [page, setPage] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [selectedEntry, setSelectedEntry] = useState<LedgerEntry | null>(null)
 
   const fetchEntries = useCallback(async () => {
     setLoading(true)
@@ -242,8 +244,9 @@ export default function LedgerPage() {
                   paged.map((entry, i) => (
                     <tr
                       key={entry.id}
+                      onClick={() => setSelectedEntry(entry)}
                       className={cn(
-                        'hover:bg-surface-high/50 transition-colors border-b border-outline-variant/10 last:border-0',
+                        'cursor-pointer hover:bg-surface-high/50 transition-colors border-b border-outline-variant/10 last:border-0',
                         i % 2 === 0 ? 'bg-white' : 'bg-surface-low/40'
                       )}
                     >
@@ -340,6 +343,11 @@ export default function LedgerPage() {
           )}
         </div>
       </div>
+
+      <TransactionDetailModal
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+      />
     </DashboardLayout>
   )
 }

@@ -9,6 +9,7 @@ import ExpenseAllocationChart from '@/components/dashboard/ExpenseAllocationChar
 import CollectionRateChart from '@/components/dashboard/CollectionRateChart'
 import RecentActivityTable from '@/components/dashboard/RecentActivityTable'
 import LogTransactionModal from '@/components/modals/LogTransactionModal'
+import TransactionDetailModal from '@/components/modals/TransactionDetailModal'
 import { supabase } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
 import type { LedgerEntry } from '@/types'
@@ -40,6 +41,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [txOpen, setTxOpen] = useState(false)
+  const [selectedEntry, setSelectedEntry] = useState<LedgerEntry | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -180,7 +182,10 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <RecentActivityTable entries={data?.recentEntries ?? []} />
+            <RecentActivityTable
+              entries={data?.recentEntries ?? []}
+              onRowClick={setSelectedEntry}
+            />
           )}
         </div>
       </div>
@@ -189,6 +194,10 @@ export default function DashboardPage() {
         open={txOpen}
         onClose={() => setTxOpen(false)}
         onSaved={() => { setTxOpen(false); fetchData() }}
+      />
+      <TransactionDetailModal
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
       />
     </DashboardLayout>
   )

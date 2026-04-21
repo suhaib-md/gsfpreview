@@ -3,9 +3,10 @@ import type { LedgerEntry } from '@/types'
 
 interface Props {
   entries: LedgerEntry[]
+  onRowClick?: (entry: LedgerEntry) => void
 }
 
-export default function RecentActivityTable({ entries }: Props) {
+export default function RecentActivityTable({ entries, onRowClick }: Props) {
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10 gap-2">
@@ -30,7 +31,8 @@ export default function RecentActivityTable({ entries }: Props) {
           {entries.map((entry, i) => (
             <tr
               key={entry.id}
-              className={`hover:bg-surface-high/50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-surface-low/40'}`}
+              onClick={() => onRowClick?.(entry)}
+              className={`transition-colors border-b border-outline-variant/10 last:border-0 ${onRowClick ? 'cursor-pointer hover:bg-surface-high/50' : ''} ${i % 2 === 0 ? 'bg-white' : 'bg-surface-low/40'}`}
             >
               <td className="px-4 py-3 text-xs text-on-surface-variant whitespace-nowrap">
                 {formatDate(entry.date)}

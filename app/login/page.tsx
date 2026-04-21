@@ -31,7 +31,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-[52%] bg-primary flex-col items-center justify-center px-16 relative overflow-hidden">
         {/* Decorative circles */}
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white/5" />
-        <div className="absolute -bottom-32 -right-20 w-[28rem] h-[28rem] rounded-full bg-white/5" />
+        <div className="absolute -bottom-32 -right-20 w-md h-112 rounded-full bg-white/5" />
         <div className="absolute top-1/2 -right-16 w-48 h-48 rounded-full bg-white/5" />
 
         <div className="relative z-10 flex flex-col items-center text-center">

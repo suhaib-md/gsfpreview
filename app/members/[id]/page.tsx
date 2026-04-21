@@ -35,10 +35,10 @@ function ProfileSkeleton() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-4 h-20 bg-surface-container" />
+              <div key={i} className="bg-surface-container rounded-xl border border-outline-variant/20 shadow-sm p-4 h-20" />
             ))}
           </div>
-          <div className="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-5 h-40 bg-surface-container" />
+          <div className="bg-surface-container rounded-xl border border-outline-variant/20 shadow-sm p-5 h-40" />
         </div>
       </div>
     </div>

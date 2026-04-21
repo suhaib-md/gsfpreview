@@ -162,7 +162,7 @@ Add a top accent bar for KPI cards: `<div class="absolute top-0 left-0 w-full h-
 
 **Primary button**: gradient `from-[#004235] to-[#005c4b]`, text white, rounded-md
 ```
-className="bg-gradient-to-r from-primary to-primary-container text-on-primary font-label 
+className="bg-linear-to-r from-primary to-primary-container text-on-primary font-label 
            font-semibold px-4 py-2.5 rounded-md hover:opacity-95 transition-opacity"
 ```
 

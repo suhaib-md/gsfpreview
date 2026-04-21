@@ -59,12 +59,16 @@ export default function DashboardPage() {
     ])
 
     const entries = ledgerRes.data ?? []
-    const generalBalance = entries
-      .filter(e => e.account === 'general')
-      .reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
-    const zakatBalance = entries
-      .filter(e => e.account === 'zakat')
-      .reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+
+    const generalEntries = entries.filter(e => e.account === 'general')
+    const latestGeneral = generalEntries.find((e: { running_balance: number | null }) => e.running_balance != null)
+    const generalBalance = latestGeneral?.running_balance
+      ?? generalEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+
+    const zakatEntries = entries.filter(e => e.account === 'zakat')
+    const latestZakat = zakatEntries.find((e: { running_balance: number | null }) => e.running_balance != null)
+    const zakatBalance = latestZakat?.running_balance
+      ?? zakatEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
 
     const dueEntries = duesRes.data ?? []
     const totalDues = dueEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)

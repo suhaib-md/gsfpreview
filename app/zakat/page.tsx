@@ -59,7 +59,9 @@ export default function ZakatPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
-  const zakatBalance = entries.reduce((sum, e) => sum + e.amount, 0)
+  const latestWithBalance = entries.find(e => e.running_balance != null)
+  const zakatBalance = latestWithBalance?.running_balance
+    ?? entries.reduce((sum, e) => sum + e.amount, 0)
   const totalInflow = entries.filter(e => e.amount > 0).reduce((sum, e) => sum + e.amount, 0)
   const totalDisbursed = entries.filter(e => e.amount < 0).reduce((sum, e) => sum + Math.abs(e.amount), 0)
 

@@ -62,9 +62,12 @@ export default function LedgerPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
-  const generalBalance = entries
-    .filter(e => e.account === 'general')
-    .reduce((sum, e) => sum + e.amount, 0)
+  // Use the most recent stored running_balance for the KPI (reflects full history).
+  // Fall back to summing amounts only if no running_balance exists yet.
+  const generalEntries = entries.filter(e => e.account === 'general')
+  const latestWithBalance = generalEntries.find(e => e.running_balance != null)
+  const generalBalance = latestWithBalance?.running_balance
+    ?? generalEntries.reduce((sum, e) => sum + e.amount, 0)
 
   function clearFilters() {
     setCategoryFilter('All')

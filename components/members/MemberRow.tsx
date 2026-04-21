@@ -6,15 +6,17 @@ import type { Member } from '@/types'
 
 interface Props {
   member: Member
+  onEdit: (member: Member) => void
+  onDelete: (member: Member) => void
 }
 
-export default function MemberRow({ member }: Props) {
+export default function MemberRow({ member, onEdit, onDelete }: Props) {
   const router = useRouter()
 
   return (
     <div
       onClick={() => router.push(`/members/${member.id}`)}
-      className="bg-white rounded-xl border border-outline-variant/20 shadow-sm px-4 py-3.5 md:px-5 md:py-4 cursor-pointer hover:bg-surface-high/50 transition-colors"
+      className="bg-white rounded-xl border border-outline-variant/20 shadow-sm px-4 py-3.5 md:px-5 md:py-4 cursor-pointer hover:bg-surface-high/50 transition-colors group"
     >
       {/* Mobile layout */}
       <div className="flex items-center gap-3 md:hidden">
@@ -44,10 +46,27 @@ export default function MemberRow({ member }: Props) {
         >
           {member.status === 'active' ? 'Active' : 'Inactive'}
         </span>
+        {/* Mobile action buttons */}
+        <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+          <button
+            onClick={() => onEdit(member)}
+            className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-fixed/30 transition-colors"
+            title="Edit member"
+          >
+            <span className="material-symbols-outlined text-[16px] leading-none">edit</span>
+          </button>
+          <button
+            onClick={() => onDelete(member)}
+            className="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-colors"
+            title="Delete member"
+          >
+            <span className="material-symbols-outlined text-[16px] leading-none">delete</span>
+          </button>
+        </div>
       </div>
 
       {/* Desktop layout */}
-      <div className="hidden md:grid grid-cols-[72px_1fr_200px_130px_90px] items-center gap-4">
+      <div className="hidden md:grid grid-cols-[72px_1fr_200px_130px_90px_72px] items-center gap-4">
         {/* Code */}
         <span className="text-xs font-mono text-on-surface-variant bg-surface-container px-2 py-1 rounded text-center">
           #{member.code}
@@ -105,6 +124,27 @@ export default function MemberRow({ member }: Props) {
           >
             {member.status === 'active' ? 'Active' : 'Inactive'}
           </span>
+        </div>
+
+        {/* Action buttons */}
+        <div
+          className="flex items-center justify-end gap-1"
+          onClick={e => e.stopPropagation()}
+        >
+          <button
+            onClick={() => onEdit(member)}
+            className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary-fixed/30 opacity-0 group-hover:opacity-100 transition-all"
+            title="Edit member"
+          >
+            <span className="material-symbols-outlined text-[16px] leading-none">edit</span>
+          </button>
+          <button
+            onClick={() => onDelete(member)}
+            className="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/40 opacity-0 group-hover:opacity-100 transition-all"
+            title="Delete member"
+          >
+            <span className="material-symbols-outlined text-[16px] leading-none">delete</span>
+          </button>
         </div>
       </div>
     </div>

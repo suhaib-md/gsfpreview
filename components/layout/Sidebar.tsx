@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useQuickAction } from './QuickActionContext'
@@ -54,9 +55,13 @@ export default function Sidebar({ isOpen, onClose }: Props) {
         {/* Logo area */}
         <div className="px-5 pt-6 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-              <span className="text-on-primary-container font-headline font-extrabold text-sm">GS</span>
-            </div>
+            <Image
+              src="/gsf-logo-def.jpeg"
+              alt="GSF Logo"
+              width={40}
+              height={40}
+              className="shrink-0 rounded-full"
+            />
             <div className="min-w-0">
               <p className="font-headline font-extrabold text-[#004235] text-sm leading-tight truncate">
                 Project GSF

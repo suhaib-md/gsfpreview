@@ -4,7 +4,11 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'GSF Accounts Management',
-  description: 'Project GSF — Financial Integrity',
+  description: 'Ghousunnissa Saheba Foundation — Financial Integrity',
+  icons: {
+    icon: '/gsf-logo.png',
+    apple: '/gsf-logo.png',
+  },
 }
 
 export default function RootLayout({

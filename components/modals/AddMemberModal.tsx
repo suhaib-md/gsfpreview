@@ -7,13 +7,16 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { supabase } from '@/lib/supabase'
+import type { Member } from '@/types'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   code: z.string().min(1, 'Member code is required'),
   email: z.union([z.string().email('Invalid email'), z.literal('')]).optional(),
   phone: z.string().optional(),
+  address: z.string().optional(),
   join_date: z.string().min(1, 'Join date is required'),
+  status: z.enum(['active', 'inactive']),
   is_bod: z.boolean(),
   bod_designation: z.string().optional(),
 })
@@ -24,11 +27,12 @@ interface Props {
   open: boolean
   onClose: () => void
   onSaved?: () => void
+  member?: Member | null
 }
 
-export default function AddMemberModal({ open, onClose, onSaved }: Props) {
+export default function AddMemberModal({ open, onClose, onSaved, member }: Props) {
   const [submitting, setSubmitting] = useState(false)
-
+  const isEdit = !!member
   const today = new Date().toISOString().split('T')[0]
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormData>({
@@ -38,7 +42,9 @@ export default function AddMemberModal({ open, onClose, onSaved }: Props) {
       code: '',
       email: '',
       phone: '',
+      address: '',
       join_date: today,
+      status: 'active',
       is_bod: false,
       bod_designation: '',
     },
@@ -48,48 +54,88 @@ export default function AddMemberModal({ open, onClose, onSaved }: Props) {
 
   useEffect(() => {
     if (!open) return
-    supabase.from('members').select('code').order('code', { ascending: false }).limit(1)
-      .then(({ data }) => {
-        const nextCode = data && data.length > 0
-          ? String(parseInt(data[0].code) + 1).padStart(4, '0')
-          : '0001'
-        reset({
-          name: '',
-          code: nextCode,
-          email: '',
-          phone: '',
-          join_date: today,
-          is_bod: false,
-          bod_designation: '',
-        })
-        setValue('code', nextCode)
+    if (member) {
+      reset({
+        name: member.name,
+        code: member.code,
+        email: member.email ?? '',
+        phone: member.phone ?? '',
+        address: member.address ?? '',
+        join_date: member.join_date,
+        status: member.status,
+        is_bod: member.is_bod,
+        bod_designation: member.bod_designation ?? '',
       })
+    } else {
+      supabase.from('members').select('code').order('code', { ascending: false }).limit(1)
+        .then(({ data }) => {
+          const nextCode = data && data.length > 0
+            ? String(parseInt(data[0].code) + 1).padStart(4, '0')
+            : '0001'
+          reset({
+            name: '',
+            code: nextCode,
+            email: '',
+            phone: '',
+            address: '',
+            join_date: today,
+            status: 'active',
+            is_bod: false,
+            bod_designation: '',
+          })
+          setValue('code', nextCode)
+        })
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  }, [open, member])
 
   async function onSubmit(data: FormData) {
     setSubmitting(true)
     try {
-      const { error } = await supabase.from('members').insert({
-        name: data.name,
-        code: data.code,
-        email: data.email || null,
-        phone: data.phone || null,
-        join_date: data.join_date,
-        status: 'active',
-        is_bod: data.is_bod,
-        bod_designation: data.is_bod ? (data.bod_designation || null) : null,
-      })
+      if (isEdit && member) {
+        const { error } = await supabase.from('members').update({
+          name: data.name,
+          code: data.code,
+          email: data.email || null,
+          phone: data.phone || null,
+          address: data.address || null,
+          join_date: data.join_date,
+          status: data.status,
+          is_bod: data.is_bod,
+          bod_designation: data.is_bod ? (data.bod_designation || null) : null,
+        }).eq('id', member.id)
 
-      if (error) {
-        if (error.code === '23505') {
-          toast.error('Member code already exists. Please use a different code.')
-          return
+        if (error) {
+          if (error.code === '23505') {
+            toast.error('Member code already exists.')
+            return
+          }
+          throw error
         }
-        throw error
+        toast.success(`Member updated — ${data.name}`)
+      } else {
+        const { error } = await supabase.from('members').insert({
+          name: data.name,
+          code: data.code,
+          email: data.email || null,
+          phone: data.phone || null,
+          address: data.address || null,
+          join_date: data.join_date,
+          status: 'active',
+          is_bod: data.is_bod,
+          bod_designation: data.is_bod ? (data.bod_designation || null) : null,
+        })
+
+        if (error) {
+          if (error.code === '23505') {
+            toast.error('Member code already exists. Please use a different code.')
+            return
+          }
+          throw error
+        }
+        toast.success(`Member added — ${data.name} (#${data.code})`)
       }
 
-      toast.success(`Member added — ${data.name} (#${data.code})`)
       onClose()
       onSaved?.()
     } catch (err) {
@@ -104,7 +150,9 @@ export default function AddMemberModal({ open, onClose, onSaved }: Props) {
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-headline font-bold text-on-surface">Add Member</DialogTitle>
+          <DialogTitle className="font-headline font-bold text-on-surface">
+            {isEdit ? 'Edit Member' : 'Add Member'}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-1">
@@ -169,6 +217,34 @@ export default function AddMemberModal({ open, onClose, onSaved }: Props) {
             </div>
           </div>
 
+          {/* Address */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-label font-medium text-on-surface-variant">
+              Address <span className="text-outline font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              {...register('address')}
+              placeholder="e.g. 12 Main Street, Hyderabad"
+              className="w-full bg-surface-highest border-none rounded-lg px-3 py-2.5 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          {/* Status — only shown when editing */}
+          {isEdit && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-label font-medium text-on-surface-variant">Status</label>
+              <div className="flex gap-2">
+                {(['active', 'inactive'] as const).map(s => (
+                  <label key={s} className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" {...register('status')} value={s} className="accent-primary" />
+                    <span className="text-sm font-label text-on-surface capitalize">{s}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* BOD */}
           <div className="space-y-2">
             <label className="flex items-center gap-2.5 cursor-pointer">
@@ -194,7 +270,7 @@ export default function AddMemberModal({ open, onClose, onSaved }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="text-sm font-label text-on-surface-variant hover:text-on-surface transition-colors"
+              className="text-sm font-label text-on-surface-variant hover:text-on-surface transition-colors px-3 py-2"
             >
               Cancel
             </button>
@@ -210,8 +286,10 @@ export default function AddMemberModal({ open, onClose, onSaved }: Props) {
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[16px] leading-none">person_add</span>
-                  Add Member
+                  <span className="material-symbols-outlined text-[16px] leading-none">
+                    {isEdit ? 'save' : 'person_add'}
+                  </span>
+                  {isEdit ? 'Save Changes' : 'Add Member'}
                 </>
               )}
             </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Sidebar from './Sidebar'
 import { QuickActionProvider, useQuickAction } from './QuickActionContext'
 import LogTransactionModal, { type TransactionType } from '@/components/modals/LogTransactionModal'
@@ -30,9 +31,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
             <span className="material-symbols-outlined text-[22px] text-on-surface-variant">menu</span>
           </button>
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-              <span className="text-on-primary-container font-headline font-extrabold text-[10px]">GS</span>
-            </div>
+            <Image src="/gsf-logo-def.jpeg" alt="GSF Logo" width={28} height={28} className="rounded-full shrink-0" />
             <span className="font-headline font-extrabold text-[#004235] text-sm">Project GSF</span>
           </div>
         </div>

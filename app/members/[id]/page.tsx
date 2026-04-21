@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import SubscriptionHistoryGrid from '@/components/members/SubscriptionHistoryGrid'
+import AddMemberModal from '@/components/modals/AddMemberModal'
 import { supabase } from '@/lib/supabase'
 import { cn, formatCurrency, formatDate, getInitials } from '@/lib/utils'
 import type { Donation, Member, Subscription } from '@/types'
@@ -48,6 +50,10 @@ export default function MemberProfilePage() {
   const router = useRouter()
   const [data, setData] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -79,6 +85,34 @@ export default function MemberProfilePage() {
     fetchData()
   }, [id])
 
+  async function handleDelete() {
+    if (!data) return
+    setDeleting(true)
+    const { error } = await supabase.from('members').delete().eq('id', data.member.id)
+    setDeleting(false)
+    if (error) {
+      setDeleteBlocked(true)
+    } else {
+      toast.success(`${data.member.name} removed from members.`)
+      router.push('/members')
+    }
+  }
+
+  async function handleMarkInactive() {
+    if (!data) return
+    setDeleting(true)
+    const { error } = await supabase.from('members').update({ status: 'inactive' }).eq('id', data.member.id)
+    setDeleting(false)
+    if (error) {
+      toast.error('Failed to update member status.')
+    } else {
+      toast.success(`${data.member.name} marked as inactive.`)
+      setDeleteConfirm(false)
+      setDeleteBlocked(false)
+      setData(prev => prev ? { ...prev, member: { ...prev.member, status: 'inactive' } } : prev)
+    }
+  }
+
   // Current FY
   const nowDate = new Date()
   const currentFyStartYear = nowDate.getMonth() + 1 >= 6 ? nowDate.getFullYear() : nowDate.getFullYear() - 1
@@ -96,7 +130,7 @@ export default function MemberProfilePage() {
   return (
     <DashboardLayout>
       {/* Back header */}
-      <div className="sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 md:px-8 py-4">
+      <div className="sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 md:px-8 py-4 flex items-center justify-between gap-4">
         <button
           onClick={() => router.push('/members')}
           className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors"
@@ -104,6 +138,24 @@ export default function MemberProfilePage() {
           <span className="material-symbols-outlined text-[20px] leading-none">arrow_back</span>
           <span className="text-sm font-label font-medium">Members</span>
         </button>
+        {data && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setEditOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-label font-medium text-on-surface-variant border border-outline-variant bg-white hover:bg-surface-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px] leading-none">edit</span>
+              <span className="hidden sm:inline">Edit</span>
+            </button>
+            <button
+              onClick={() => setDeleteConfirm(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-label font-medium text-error border border-error-container bg-error-container/20 hover:bg-error-container/40 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px] leading-none">delete</span>
+              <span className="hidden sm:inline">Delete</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -295,6 +347,74 @@ export default function MemberProfilePage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Edit modal */}
+      {data && (
+        <AddMemberModal
+          open={editOpen}
+          member={data.member}
+          onClose={() => setEditOpen(false)}
+          onSaved={async () => {
+            const { data: updated } = await supabase.from('members').select('*').eq('id', id).single()
+            if (updated) setData(prev => prev ? { ...prev, member: updated as Member } : prev)
+          }}
+        />
+      )}
+
+      {/* Delete confirmation */}
+      {deleteConfirm && data && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl border border-outline-variant/20 p-6 max-w-sm w-full">
+            {!deleteBlocked ? (
+              <>
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[20px] text-error">delete</span>
+                  </div>
+                  <div>
+                    <h3 className="font-headline font-bold text-on-surface text-base">Delete Member</h3>
+                    <p className="text-sm text-on-surface-variant mt-1">
+                      Remove <span className="font-semibold text-on-surface">{data.member.name}</span> (#{data.member.code}) permanently? This cannot be undone.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-3">
+                  <button onClick={() => { setDeleteConfirm(false); setDeleteBlocked(false) }} disabled={deleting} className="text-sm font-label text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2">Cancel</button>
+                  <button onClick={handleDelete} disabled={deleting} className="flex items-center gap-2 bg-error text-white font-label font-semibold px-5 py-2.5 rounded-md hover:opacity-90 transition-opacity disabled:opacity-60 text-sm">
+                    {deleting ? <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> : <span className="material-symbols-outlined text-[16px] leading-none">delete</span>}
+                    {deleting ? 'Deleting…' : 'Delete'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[20px] text-on-tertiary-fixed-variant">link</span>
+                  </div>
+                  <div>
+                    <h3 className="font-headline font-bold text-on-surface text-base">Cannot Delete</h3>
+                    <p className="text-sm text-on-surface-variant mt-1">
+                      <span className="font-semibold text-on-surface">{data.member.name}</span> has linked subscriptions or ledger records. Financial history must be preserved.
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-surface-container rounded-lg px-4 py-3 mb-4">
+                  <p className="text-xs text-on-surface-variant leading-relaxed">
+                    <span className="font-semibold text-on-surface">Recommended:</span> Mark this member as <span className="font-semibold">Inactive</span> instead. Their records remain in the ledger but they won't appear in active member views.
+                  </p>
+                </div>
+                <div className="flex items-center justify-end gap-3">
+                  <button onClick={() => { setDeleteConfirm(false); setDeleteBlocked(false) }} disabled={deleting} className="text-sm font-label text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2">Cancel</button>
+                  <button onClick={handleMarkInactive} disabled={deleting} className="flex items-center gap-2 bg-linear-to-r from-primary to-primary-container text-on-primary font-label font-semibold px-5 py-2.5 rounded-md hover:opacity-95 transition-opacity disabled:opacity-60 text-sm">
+                    {deleting ? <span className="w-4 h-4 rounded-full border-2 border-on-primary border-t-transparent animate-spin" /> : <span className="material-symbols-outlined text-[16px] leading-none">person_off</span>}
+                    {deleting ? 'Updating…' : 'Mark as Inactive'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

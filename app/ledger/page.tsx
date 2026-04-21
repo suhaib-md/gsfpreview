@@ -32,6 +32,7 @@ export default function LedgerPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [page, setPage] = useState(0)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const fetchEntries = useCallback(async () => {
     setLoading(true)
@@ -46,7 +47,6 @@ export default function LedgerPage() {
 
   useEffect(() => { fetchEntries() }, [fetchEntries])
 
-  // Reset to page 0 whenever a filter changes
   useEffect(() => { setPage(0) }, [categoryFilter, memberCodeFilter, dateFrom, dateTo])
 
   const filtered = entries.filter(e => {
@@ -60,7 +60,6 @@ export default function LedgerPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
-  // General account balance (always from full unfiltered data)
   const generalBalance = entries
     .filter(e => e.account === 'general')
     .reduce((sum, e) => sum + e.amount, 0)
@@ -86,25 +85,67 @@ export default function LedgerPage() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-label font-medium text-on-surface-variant border border-outline-variant bg-white hover:bg-surface-container transition-colors"
             >
               <span className="material-symbols-outlined text-[16px] leading-none">picture_as_pdf</span>
-              Export PDF
+              <span className="hidden sm:inline">Export PDF</span>
             </button>
             <button
               onClick={() => toast.info('Export feature coming in the full version')}
               className="flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-label font-medium text-on-surface-variant border border-outline-variant bg-white hover:bg-surface-container transition-colors"
             >
               <span className="material-symbols-outlined text-[16px] leading-none">table_view</span>
-              Export Excel
+              <span className="hidden sm:inline">Export Excel</span>
             </button>
           </div>
         }
       />
 
-      <div className="px-8 py-6 space-y-4">
-        {/* Filter panel + Balance KPI */}
-        <div className="flex items-start gap-4">
+      <div className="px-4 py-4 md:px-8 md:py-6 space-y-4">
+        {/* Balance KPI + Filter panel */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+
+          {/* Balance KPI — full width on mobile, fixed width on desktop */}
+          <div className="relative bg-white rounded-xl border border-outline-variant/20 shadow-sm p-4 overflow-hidden lg:w-52 lg:shrink-0 order-first lg:order-last">
+            <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
+            <p className="text-xs font-label font-medium text-on-surface-variant uppercase tracking-wide mt-1 mb-1.5">
+              General Account
+            </p>
+            {loading ? (
+              <div className="h-7 bg-surface-container rounded animate-pulse w-28" />
+            ) : (
+              <>
+                <p className="font-headline font-bold text-xl text-on-surface">
+                  {formatCurrency(generalBalance)}
+                </p>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label font-semibold">
+                    +4.2%
+                  </span>
+                  <span className="text-xs text-on-surface-variant">vs last month</span>
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Filters */}
           <div className="flex-1 bg-white rounded-xl border border-outline-variant/20 shadow-sm p-4">
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Mobile: toggle button */}
+            <button
+              className="flex items-center justify-between w-full md:hidden"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+            >
+              <span className="text-sm font-label font-medium text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px] text-outline">filter_list</span>
+                Filters
+                {hasActiveFilters && (
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                )}
+              </span>
+              <span className="material-symbols-outlined text-[18px] text-outline">
+                {filtersOpen ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
+
+            {/* Filter controls */}
+            <div className={cn('gap-2 flex-wrap', filtersOpen ? 'flex mt-3' : 'hidden md:flex')}>
               {/* Date from */}
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-label text-on-surface-variant whitespace-nowrap">From</span>
@@ -126,7 +167,7 @@ export default function LedgerPage() {
                 />
               </div>
 
-              <div className="w-px h-5 bg-outline-variant/30 mx-1" />
+              <div className="hidden md:block w-px h-5 bg-outline-variant/30 mx-1 self-center" />
 
               {/* Category */}
               <select
@@ -171,29 +212,6 @@ export default function LedgerPage() {
               </p>
             )}
           </div>
-
-          {/* Balance KPI card */}
-          <div className="relative bg-white rounded-xl border border-outline-variant/20 shadow-sm p-4 overflow-hidden w-52 shrink-0">
-            <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
-            <p className="text-xs font-label font-medium text-on-surface-variant uppercase tracking-wide mt-1 mb-1.5">
-              General Account
-            </p>
-            {loading ? (
-              <div className="h-7 bg-surface-container rounded animate-pulse w-28" />
-            ) : (
-              <>
-                <p className="font-headline font-bold text-xl text-on-surface">
-                  {formatCurrency(generalBalance)}
-                </p>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label font-semibold">
-                    +4.2%
-                  </span>
-                  <span className="text-xs text-on-surface-variant">vs last month</span>
-                </div>
-              </>
-            )}
-          </div>
         </div>
 
         {/* Transactions table */}
@@ -204,10 +222,10 @@ export default function LedgerPage() {
                 <tr className="bg-surface-low border-b border-outline-variant/15">
                   <th className="text-left px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide whitespace-nowrap">Date</th>
                   <th className="text-left px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide">Category</th>
-                  <th className="text-left px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide whitespace-nowrap">Member</th>
-                  <th className="text-left px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide">Description</th>
+                  <th className="text-left px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide whitespace-nowrap hidden sm:table-cell">Member</th>
+                  <th className="text-left px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide hidden md:table-cell">Description</th>
                   <th className="text-right px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide whitespace-nowrap">Amount</th>
-                  <th className="text-right px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide whitespace-nowrap">Balance</th>
+                  <th className="text-right px-4 py-3 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide whitespace-nowrap hidden lg:table-cell">Balance</th>
                 </tr>
               </thead>
               <tbody>
@@ -241,7 +259,7 @@ export default function LedgerPage() {
                             {entry.category}{entry.sub_category ? ` / ${entry.sub_category}` : ''}
                           </span>
                           {entry.account === 'zakat' && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant">
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant hidden sm:inline">
                               ZAKAT
                             </span>
                           )}
@@ -249,7 +267,7 @@ export default function LedgerPage() {
                       </td>
 
                       {/* Member code */}
-                      <td className="px-4 py-3.5">
+                      <td className="px-4 py-3.5 hidden sm:table-cell">
                         {entry.member_code ? (
                           <span className="text-xs font-mono text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
                             #{entry.member_code}
@@ -260,7 +278,7 @@ export default function LedgerPage() {
                       </td>
 
                       {/* Description */}
-                      <td className="px-4 py-3.5 text-xs text-on-surface max-w-xs">
+                      <td className="px-4 py-3.5 text-xs text-on-surface max-w-xs hidden md:table-cell">
                         <span className="line-clamp-1">{entry.description}</span>
                       </td>
 
@@ -274,7 +292,7 @@ export default function LedgerPage() {
                       </td>
 
                       {/* Running balance */}
-                      <td className="px-4 py-3.5 text-right text-xs text-on-surface-variant whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-right text-xs text-on-surface-variant whitespace-nowrap hidden lg:table-cell">
                         {entry.running_balance != null
                           ? formatCurrency(entry.running_balance)
                           : <span className="text-outline">—</span>
@@ -289,14 +307,13 @@ export default function LedgerPage() {
 
           {/* Pagination */}
           {!loading && filtered.length > 0 && (
-            <div className="px-4 py-3 border-t border-outline-variant/15 flex items-center justify-between">
+            <div className="px-4 py-3 border-t border-outline-variant/15 flex items-center justify-between gap-4">
               <p className="text-xs text-on-surface-variant">
-                Showing{' '}
                 <span className="font-medium text-on-surface">
                   {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)}
                 </span>{' '}
                 of{' '}
-                <span className="font-medium text-on-surface">{filtered.length}</span> entries
+                <span className="font-medium text-on-surface">{filtered.length}</span>
               </p>
               <div className="flex items-center gap-2">
                 <button

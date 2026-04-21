@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
 import type { LedgerEntry } from '@/types'
 
-const MEDICAL_FUND = 120000 // hardcoded per spec — no dedicated table
+const MEDICAL_FUND = 120000
 
 interface DashboardData {
   generalBalance: number
@@ -80,7 +80,6 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-
   const totalFunds = (data?.generalBalance ?? 0) + (data?.zakatBalance ?? 0) + MEDICAL_FUND
 
   return (
@@ -90,7 +89,7 @@ export default function DashboardPage() {
         description="Foundation financial overview"
       />
 
-      <div className="px-8 py-6 space-y-6">
+      <div className="px-4 py-4 md:px-8 md:py-6 space-y-4 md:space-y-6">
         {/* Quick Action */}
         <div>
           <button
@@ -103,16 +102,18 @@ export default function DashboardPage() {
         </div>
 
         {/* KPI Bento Grid */}
-        <div className="grid grid-cols-3 gap-4">
-          {/* Row 1 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {loading ? (
             <>
-              <div className="col-span-2"><KpiSkeleton /></div>
+              <div className="sm:col-span-2"><KpiSkeleton /></div>
+              <KpiSkeleton />
+              <KpiSkeleton />
+              <KpiSkeleton />
               <KpiSkeleton />
             </>
           ) : (
             <>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <KpiCard
                   label="Total Foundation Funds"
                   value={formatCurrency(totalFunds)}
@@ -129,18 +130,6 @@ export default function DashboardPage() {
                 sublabel={`${Math.round((data!.generalBalance / totalFunds) * 100)}% of total`}
                 accentClass="bg-secondary-fixed"
               />
-            </>
-          )}
-
-          {/* Row 2 */}
-          {loading ? (
-            <>
-              <KpiSkeleton />
-              <KpiSkeleton />
-              <KpiSkeleton />
-            </>
-          ) : (
-            <>
               <KpiCard
                 label="Zakat Account"
                 value={formatCurrency(data!.zakatBalance)}
@@ -165,10 +154,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           <DonationBreakdownChart />
           <ExpenseAllocationChart />
-          <CollectionRateChart />
+          <div className="md:col-span-2 lg:col-span-1">
+            <CollectionRateChart />
+          </div>
         </div>
 
         {/* Recent Ledger Activity */}

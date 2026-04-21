@@ -20,7 +20,7 @@ const DATA = [
 
 export default function CollectionRateChart() {
   return (
-    <div className="bg-surface-lowest rounded-xl border border-outline-variant/20 shadow-sm p-5">
+    <div className="bg-surface-lowest rounded-xl border border-outline-variant/20 shadow-sm p-5 overflow-hidden min-w-0">
       <p className="text-xs font-label font-medium text-on-surface-variant uppercase tracking-wide mb-4">
         Collection Rate
       </p>

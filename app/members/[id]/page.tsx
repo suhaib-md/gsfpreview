@@ -16,8 +16,8 @@ interface ProfileData {
 
 function ProfileSkeleton() {
   return (
-    <div className="px-8 py-6 animate-pulse">
-      <div className="grid grid-cols-[288px_1fr] gap-6">
+    <div className="px-4 py-4 md:px-8 md:py-6 animate-pulse">
+      <div className="flex flex-col lg:grid lg:grid-cols-[288px_1fr] gap-5">
         <div className="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-6 space-y-4">
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full bg-surface-container" />
@@ -31,7 +31,7 @@ function ProfileSkeleton() {
           </div>
         </div>
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-4 h-20 bg-surface-container" />
             ))}
@@ -79,7 +79,7 @@ export default function MemberProfilePage() {
     fetchData()
   }, [id])
 
-  // Current FY: Jun–May, so if month >= 6 we're in fyStartYear, else fyStartYear - 1
+  // Current FY
   const nowDate = new Date()
   const currentFyStartYear = nowDate.getMonth() + 1 >= 6 ? nowDate.getFullYear() : nowDate.getFullYear() - 1
 
@@ -96,7 +96,7 @@ export default function MemberProfilePage() {
   return (
     <DashboardLayout>
       {/* Back header */}
-      <div className="sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-8 py-4">
+      <div className="sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 px-4 md:px-8 py-4">
         <button
           onClick={() => router.push('/members')}
           className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors"
@@ -114,11 +114,11 @@ export default function MemberProfilePage() {
           <p className="text-sm text-on-surface-variant">Member not found</p>
         </div>
       ) : (
-        <div className="px-8 py-6">
-          <div className="grid grid-cols-[288px_1fr] gap-6 items-start">
+        <div className="px-4 py-4 md:px-8 md:py-6">
+          <div className="flex flex-col lg:grid lg:grid-cols-[288px_1fr] gap-5 items-start">
 
             {/* ── Left: Profile identity card ── */}
-            <div className="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-6 sticky top-24">
+            <div className="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-6 lg:sticky lg:top-24">
               {/* Avatar */}
               <div className="flex flex-col items-center text-center mb-5">
                 <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-3">
@@ -188,9 +188,9 @@ export default function MemberProfilePage() {
             </div>
 
             {/* ── Right: KPIs + History + Donations ── */}
-            <div className="space-y-5">
+            <div className="space-y-5 w-full">
               {/* KPI row */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                 {[
                   {
                     label: 'Total Contributed',
@@ -263,7 +263,7 @@ export default function MemberProfilePage() {
                         <tr className="bg-surface-low">
                           <th className="text-left px-4 py-2.5 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide">Date</th>
                           <th className="text-left px-4 py-2.5 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide">Type</th>
-                          <th className="text-left px-4 py-2.5 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide">Category</th>
+                          <th className="text-left px-4 py-2.5 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide hidden sm:table-cell">Category</th>
                           <th className="text-right px-4 py-2.5 text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide">Amount</th>
                         </tr>
                       </thead>
@@ -281,7 +281,7 @@ export default function MemberProfilePage() {
                                 {d.type}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-xs text-on-surface-variant capitalize">
+                            <td className="px-4 py-3 text-xs text-on-surface-variant capitalize hidden sm:table-cell">
                               {d.category}
                             </td>
                             <td className="px-4 py-3 text-right text-xs font-label font-medium text-primary whitespace-nowrap">

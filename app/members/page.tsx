@@ -14,8 +14,18 @@ type StatusFilter = 'all' | 'active' | 'inactive'
 
 function RowSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-outline-variant/20 shadow-sm px-5 py-4 animate-pulse">
-      <div className="grid grid-cols-[72px_1fr_200px_130px_90px] items-center gap-4">
+    <div className="bg-white rounded-xl border border-outline-variant/20 shadow-sm px-4 py-3.5 md:px-5 md:py-4 animate-pulse">
+      {/* Mobile skeleton */}
+      <div className="flex items-center gap-3 md:hidden">
+        <div className="w-9 h-9 rounded-full bg-surface-container shrink-0" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-3 bg-surface-container rounded w-32" />
+          <div className="h-2.5 bg-surface-container rounded w-16" />
+        </div>
+        <div className="h-6 bg-surface-container rounded-full w-14" />
+      </div>
+      {/* Desktop skeleton */}
+      <div className="hidden md:grid grid-cols-[72px_1fr_200px_130px_90px] items-center gap-4">
         <div className="h-6 bg-surface-container rounded w-full" />
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-surface-container" />
@@ -95,16 +105,17 @@ export default function MembersPage() {
             className="flex items-center gap-2 bg-linear-to-r from-primary to-primary-container text-on-primary font-label font-semibold px-4 py-2 rounded-md hover:opacity-95 transition-opacity text-sm"
           >
             <span className="material-symbols-outlined text-[18px] leading-none">person_add</span>
-            Add Member
+            <span className="hidden sm:inline">Add Member</span>
+            <span className="sm:hidden">Add</span>
           </button>
         }
       />
 
-      <div className="px-8 py-6 space-y-4">
+      <div className="px-4 py-4 md:px-8 md:py-6 space-y-4">
         {/* Search + Filters */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
           {/* Search */}
-          <div className="relative flex-1 min-w-55">
+          <div className="relative flex-1 min-w-0">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">
               search
             </span>
@@ -117,41 +128,43 @@ export default function MembersPage() {
             />
           </div>
 
-          {/* Status filters */}
-          <div className="flex items-center gap-1 bg-surface-container rounded-lg p-1">
-            {STATUS_FILTERS.map(f => (
-              <button
-                key={f.value}
-                onClick={() => handleStatusFilter(f.value)}
-                className={cn(
-                  'px-3 py-1.5 rounded text-xs font-label font-medium transition-colors',
-                  statusFilter === f.value
-                    ? 'bg-white text-on-surface shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Status filters */}
+            <div className="flex items-center gap-1 bg-surface-container rounded-lg p-1">
+              {STATUS_FILTERS.map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => handleStatusFilter(f.value)}
+                  className={cn(
+                    'px-3 py-1.5 rounded text-xs font-label font-medium transition-colors',
+                    statusFilter === f.value
+                      ? 'bg-white text-on-surface shadow-sm'
+                      : 'text-on-surface-variant hover:text-on-surface'
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
 
-          {/* BOD filter */}
-          <button
-            onClick={() => { setBodOnly(!bodOnly); setPage(0) }}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-label font-medium border transition-colors',
-              bodOnly
-                ? 'bg-tertiary-fixed text-on-tertiary-fixed-variant border-tertiary-fixed'
-                : 'bg-white text-on-surface-variant border-outline-variant hover:bg-surface-container'
-            )}
-          >
-            <span className="material-symbols-outlined text-[14px] leading-none">verified</span>
-            BOD Only
-          </button>
+            {/* BOD filter */}
+            <button
+              onClick={() => { setBodOnly(!bodOnly); setPage(0) }}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-label font-medium border transition-colors',
+                bodOnly
+                  ? 'bg-tertiary-fixed text-on-tertiary-fixed-variant border-tertiary-fixed'
+                  : 'bg-white text-on-surface-variant border-outline-variant hover:bg-surface-container'
+              )}
+            >
+              <span className="material-symbols-outlined text-[14px] leading-none">verified</span>
+              BOD Only
+            </button>
+          </div>
         </div>
 
-        {/* Table header */}
-        <div className="grid grid-cols-[72px_1fr_200px_130px_90px] gap-4 px-5 pb-1">
+        {/* Table header — desktop only */}
+        <div className="hidden md:grid grid-cols-[72px_1fr_200px_130px_90px] gap-4 px-5 pb-1">
           {['Code', 'Member', 'Contact', 'Joined', 'Status'].map(h => (
             <span key={h} className="text-xs font-label font-semibold text-on-surface-variant uppercase tracking-wide last:text-right">
               {h}

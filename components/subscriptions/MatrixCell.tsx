@@ -26,21 +26,21 @@ export default function MatrixCell({
   // Future month — grey dot, no interaction
   if (isFuture) {
     return (
-      <div className="flex items-center justify-center w-10 h-10">
-        <div className="w-2 h-2 rounded-full bg-outline-variant/30" />
+      <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10">
+        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-outline-variant/30" />
       </div>
     )
   }
 
-  // No data yet — clickable empty cell to log subscription
+  // No data yet — clickable empty cell
   if (!subscription) {
     return (
       <div
         onClick={() => onClickDueOrEmpty(member, month, year)}
-        className="flex items-center justify-center w-10 h-10 rounded-lg cursor-pointer hover:bg-surface-container transition-colors"
+        className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg cursor-pointer hover:bg-surface-container transition-colors"
         title={`Log subscription for ${member.name} — ${MONTH_NAMES[month - 1]} ${year}`}
       >
-        <div className="w-2 h-2 rounded-full bg-outline-variant/30" />
+        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-outline-variant/30" />
       </div>
     )
   }
@@ -51,7 +51,7 @@ export default function MatrixCell({
       <Popover>
         <PopoverTrigger
           className={cn(
-            'w-10 h-10 rounded-lg flex items-center justify-center text-[11px] font-bold cursor-pointer hover:opacity-80 transition-opacity select-none border-0 p-0',
+            'w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-[10px] md:text-[11px] font-bold cursor-pointer hover:opacity-80 transition-opacity select-none border-0 p-0',
             getSubscriptionBadgeClass('paid')
           )}
         >
@@ -96,7 +96,7 @@ export default function MatrixCell({
       <div
         onClick={() => onClickDueOrEmpty(member, month, year)}
         className={cn(
-          'w-10 h-10 rounded-lg flex items-center justify-center text-[11px] font-bold cursor-pointer hover:opacity-80 transition-opacity select-none',
+          'w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-[10px] md:text-[11px] font-bold cursor-pointer hover:opacity-80 transition-opacity select-none',
           getSubscriptionBadgeClass('due'),
           isCurrent && 'ring-2 ring-tertiary-fixed ring-offset-2'
         )}
@@ -111,7 +111,7 @@ export default function MatrixCell({
   return (
     <div
       className={cn(
-        'w-10 h-10 rounded-lg flex items-center justify-center text-[9px] font-bold select-none',
+        'w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-[8px] md:text-[9px] font-bold select-none',
         getSubscriptionBadgeClass('na')
       )}
     >

@@ -53,7 +53,12 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          // Mobile: bottom sheet
+          "fixed bottom-0 left-0 right-0 z-50 grid w-full max-h-[92dvh] overflow-y-auto gap-4 rounded-t-2xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none",
+          "duration-200 data-open:animate-in data-open:slide-in-from-bottom data-closed:animate-out data-closed:slide-out-to-bottom",
+          // Desktop: centered modal
+          "sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:max-h-[90vh]",
+          "data-open:sm:zoom-in-95 data-closed:sm:zoom-out-95",
           className
         )}
         {...props}
@@ -80,13 +85,19 @@ function DialogContent({
   )
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({ className, children, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
       className={cn("flex flex-col gap-2", className)}
       {...props}
-    />
+    >
+      {/* Mobile drag handle */}
+      <div className="flex justify-center -mt-1 mb-1 sm:hidden">
+        <div className="w-10 h-1 rounded-full bg-outline-variant/40" />
+      </div>
+      {children}
+    </div>
   )
 }
 

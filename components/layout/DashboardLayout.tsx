@@ -8,6 +8,7 @@ import LogTransactionModal, { type TransactionType } from '@/components/modals/L
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const { activeModal, closeModal } = useQuickAction()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const typeMap: Record<NonNullable<typeof activeModal>, TransactionType> = {
     subscription: 'subscription',
@@ -16,11 +17,31 @@ function LayoutContent({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-surface">
-      <Sidebar />
-      <main className="ml-72 flex-1 overflow-y-auto min-h-screen">
-        {children}
-      </main>
+    <div className="flex min-h-screen bg-surface overflow-x-hidden">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="flex-1 flex flex-col md:ml-72 min-h-screen min-w-0">
+        {/* Mobile top bar */}
+        <div className="sticky top-0 z-20 flex items-center gap-3 px-4 py-3 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 md:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-surface-container transition-colors"
+          >
+            <span className="material-symbols-outlined text-[22px] text-on-surface-variant">menu</span>
+          </button>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+              <span className="text-on-primary-container font-headline font-extrabold text-[10px]">GS</span>
+            </div>
+            <span className="font-headline font-extrabold text-[#004235] text-sm">Project GSF</span>
+          </div>
+        </div>
+
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+
       <LogTransactionModal
         open={activeModal !== null}
         initialType={activeModal ? typeMap[activeModal] : 'subscription'}

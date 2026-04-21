@@ -10,7 +10,7 @@ const DATA = [
 
 export default function ExpenseAllocationChart() {
   return (
-    <div className="bg-surface-lowest rounded-xl border border-outline-variant/20 shadow-sm p-5">
+    <div className="bg-surface-lowest rounded-xl border border-outline-variant/20 shadow-sm p-5 overflow-hidden min-w-0">
       <p className="text-xs font-label font-medium text-on-surface-variant uppercase tracking-wide mb-4">
         Expense Allocation
       </p>
@@ -20,8 +20,8 @@ export default function ExpenseAllocationChart() {
             data={DATA}
             cx="50%"
             cy="50%"
-            innerRadius={48}
-            outerRadius={72}
+            innerRadius={44}
+            outerRadius={64}
             dataKey="value"
             strokeWidth={2}
             stroke="#f8f9fa"

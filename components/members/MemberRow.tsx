@@ -14,9 +14,40 @@ export default function MemberRow({ member }: Props) {
   return (
     <div
       onClick={() => router.push(`/members/${member.id}`)}
-      className="bg-white rounded-xl border border-outline-variant/20 shadow-sm px-5 py-4 cursor-pointer hover:bg-surface-high/50 transition-colors"
+      className="bg-white rounded-xl border border-outline-variant/20 shadow-sm px-4 py-3.5 md:px-5 md:py-4 cursor-pointer hover:bg-surface-high/50 transition-colors"
     >
-      <div className="grid grid-cols-[72px_1fr_200px_130px_90px] items-center gap-4">
+      {/* Mobile layout */}
+      <div className="flex items-center gap-3 md:hidden">
+        <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+          <span className="text-on-primary-container text-[10px] font-bold">
+            {getInitials(member.name)}
+          </span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-label font-semibold text-on-surface text-sm">{member.name}</span>
+            {member.is_bod && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant">
+                BOD
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] text-outline font-mono">#{member.code}</span>
+        </div>
+        <span
+          className={cn(
+            'text-xs px-2 py-0.5 rounded-full font-label font-medium shrink-0',
+            member.status === 'active'
+              ? 'bg-primary-fixed text-on-primary-fixed-variant'
+              : 'bg-secondary-container text-on-secondary-container'
+          )}
+        >
+          {member.status === 'active' ? 'Active' : 'Inactive'}
+        </span>
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden md:grid grid-cols-[72px_1fr_200px_130px_90px] items-center gap-4">
         {/* Code */}
         <span className="text-xs font-mono text-on-surface-variant bg-surface-container px-2 py-1 rounded text-center">
           #{member.code}

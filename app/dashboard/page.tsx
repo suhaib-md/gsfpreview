@@ -46,7 +46,7 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     const [ledgerRes, recentRes, duesRes] = await Promise.all([
-      supabase.from('ledger_entries').select('account, amount'),
+      supabase.from('ledger_entries').select('account, amount, running_balance').order('date', { ascending: false }).order('created_at', { ascending: false }),
       supabase
         .from('ledger_entries')
         .select('*')
@@ -61,14 +61,14 @@ export default function DashboardPage() {
     const entries = ledgerRes.data ?? []
 
     const generalEntries = entries.filter(e => e.account === 'general')
-    const latestGeneral = generalEntries.find((e: { running_balance: number | null }) => e.running_balance != null)
+    const latestGeneral = generalEntries.find(e => e.running_balance != null)
     const generalBalance = latestGeneral?.running_balance
-      ?? generalEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+      ?? generalEntries.reduce((sum: number, e) => sum + e.amount, 0)
 
     const zakatEntries = entries.filter(e => e.account === 'zakat')
-    const latestZakat = zakatEntries.find((e: { running_balance: number | null }) => e.running_balance != null)
+    const latestZakat = zakatEntries.find(e => e.running_balance != null)
     const zakatBalance = latestZakat?.running_balance
-      ?? zakatEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
+      ?? zakatEntries.reduce((sum: number, e) => sum + e.amount, 0)
 
     const dueEntries = duesRes.data ?? []
     const totalDues = dueEntries.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0)
